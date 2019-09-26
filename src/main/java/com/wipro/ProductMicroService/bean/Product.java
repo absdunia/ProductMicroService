@@ -24,13 +24,10 @@ public class Product {
 	@Id
     @Column(name = "ID")
     private Integer id;
-    @Column(name = "PRODUCT_NAME")
     private String productName;
-    @Column(name = "PRODUCT_CODE")
     private String productCode;
     @Column(name = "PRODUCT_DESC")
     private String productDesc;
-    @Column(name = "PRODUCT_ADDED_ON")
     private Date productAddedOn;
 
 }
