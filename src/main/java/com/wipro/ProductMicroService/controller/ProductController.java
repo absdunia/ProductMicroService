@@ -53,8 +53,6 @@ public class ProductController {
 	
 	@Autowired
 	private Promotion promotion;
-	
-    
 
   /*  @GetMapping(value = "/getAllProducts")
     public List<Product> getAll() {
@@ -85,7 +83,6 @@ public class ProductController {
 	public Product createProduct(@RequestBody Product product) {
 		return productServiceImpl.saveNewProduct(product);
 	}
-	
 	@GetMapping("/welcome")
 	public String welcome() {
 		return "hello microservice!!!!" + " - @ "+ serverPort;
@@ -95,6 +92,48 @@ public class ProductController {
 		return "Welcome to Default page/response" + " - @ "+ serverPort;
 	}
 	
+	@PostMapping(value = "/createAllProduct", consumes = "application/json", produces = "application/json")
+	public ProductView createAllProduct(@RequestBody ProductView productView) {
+		RestTemplate restTemplate =  restTemplateBuilder.build();
+		
+		product.setId(productView.getId());
+		product.setProductName(productView.getProductName());
+		product.setProductCode(productView.getProductCode());
+		product.setProductDesc(productView.getProductDesc());
+		product.setProductAddedOn(productView.getProductAddedOn());
+		productServiceImpl.saveNewProduct(product);
+		
+		price.setProductID(productView.getId());
+		price.setPrice(productView.getPrice());
+		
+		InstanceInfo instanceInfo = eurekaClient.getNextServerFromEureka("PRICE-MS", false);
+		String baseUrl = instanceInfo.getHomePageUrl();
+		baseUrl = baseUrl+ "/eCommerce/price/createPrice";
+		Price priceResult = restTemplate.postForObject(baseUrl, price, Price.class);
+		
+		inventory.setProductID(productView.getId());
+		inventory.setQuantity(productView.getQuantity());
+		inventory.setSupplierDetails(productView.getSupplierDetails());
+		
+		InstanceInfo instanceInfo1 = eurekaClient.getNextServerFromEureka("INVENTORY-MS", false);
+		String baseUrl1 = instanceInfo1.getHomePageUrl();
+		baseUrl1 = baseUrl1+ "/eCommerce/inventory/createInventory";
+		Inventory inventoryResult = restTemplate.postForObject(baseUrl1, inventory, Inventory.class);
+		
+		promotion.setProductID(productView.getId());
+		promotion.setPromotion1(productView.getPromotion1());
+		promotion.setPromotion2(productView.getPromotion2());
+		promotion.setPromotion3(productView.getPromotion3());
+		promotion.setStartDate(productView.getStartDate());
+		promotion.setEndDate(productView.getEndDate());
+		
+		InstanceInfo instanceInfo2 = eurekaClient.getNextServerFromEureka("PROMOTION-MS", false);
+		String baseUrl2 = instanceInfo2.getHomePageUrl();
+		baseUrl2 = baseUrl2+ "/eCommerce/promotion/createPromotionForProduct";
+		Promotion promotionResult = restTemplate.postForObject(baseUrl2, promotion, Promotion.class);
+		
+		return productView;
+	}
 
 	@DeleteMapping(value = "/deleteAllByProductID",produces = "application/json")
 	public String removeAll(@RequestParam String productID) {
@@ -166,7 +205,7 @@ public class ProductController {
 			restTemplate.put(baseUrl2, promotion);
 			
 			
-			return "Updated Successfully";
+			return "Product Updated Successfully";
 			
 		}
 	
