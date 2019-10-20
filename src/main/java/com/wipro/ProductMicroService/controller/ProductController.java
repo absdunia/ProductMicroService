@@ -163,7 +163,7 @@ public class ProductController {
 		}
 	}
 		@PutMapping(value = "/updateAll", consumes = "application/json", produces = "application/json")
-		public String updateAllProduct(@RequestBody ProductView productView) {
+		public ProductView updateAllProduct(@RequestBody ProductView productView) {
 			RestTemplate restTemplate =  restTemplateBuilder.build();
 			
 			
@@ -205,7 +205,7 @@ public class ProductController {
 			restTemplate.put(baseUrl2, promotion);
 			
 			
-			return "Product Updated Successfully";
+			return productView;
 			
 		}
 	
